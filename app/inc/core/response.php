@@ -34,45 +34,105 @@ function inline_script_nonce()
 function send_http_headers()
 {
     $inline_script_nonce = "'nonce-" . inline_script_nonce() . "'";
+
     // Content security policy
-    $content_origins = [
-    "default-src 'self' *.google.com *.google-analytics.com *.fontawesome.com;", // for resources from google.com
-    "font-src 'self' fonts.gstatic.com *.fontawesome.com;",
-    "style-src 'self' *.googleapis.com *.jsdelivr.net;",
-    "script-src 'self' *.google.com *.googletagmanager.com *.googleapis.com *.jsdelivr.net *.fontawesome.com {$inline_script_nonce};",// cdn for third partly libraries
-    "object-src 'none';",// avoid execution of unsafe scripts.
-    "frame-ancestors 'none';",//avoid rendering of page in <frame>, <iframe>, <object>, <embed>, or <applet>
-    "form-action 'self';",//restrict form submission to the origin which the protected page is being served.
-    "upgrade-insecure-requests;",//'upgrade-insecure-requests' and 'block-all-mixed-content' should be set to avoid mixed content (URLs served over HTTP and HTTPS) on the page.
-    ];
+    // @refer https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+    $content_origins = array(
+        "default-src"       => array(
+            "'self'",
+            "*.google.com",             // for resources from google.com
+            "*.google-analytics.com",   // google analytics scripts
+        ),
+
+        "font-src"          => array(
+            "'self'",
+            "fonts.gstatic.com",        // for google fonts
+        ),
+
+        "style-src"         => array(
+            "'self'",
+            "*.googleapis.com",
+            "*.jsdelivr.net",
+        ),
+
+        "script-src"        => array(
+            "'self'",
+            "*.google.com",
+            "*.googletagmanager.com",
+            "*.googleapis.com",
+            "*.jsdelivr.net",           // cdn for third party libraries.
+            $inline_script_nonce,       // to allow safe inline scripts.
+        ),
+
+        "object-src"        => array(
+            "'none'",                   // avoid execution of unsafe scripts.
+        ),
+
+        "frame-ancestors"   => array(
+            "'none'",                   // avoid rendering of page in <frame>, <iframe>, <object>, <embed>, or <applet>
+        ),
+
+        "form-action"       => array(
+            "'self'",                   // restrict form submission to the self origin.
+        ),
+    );
+
+    // Use this filter to whitelist other origins or remove some of the defaults.
+    $content_origins = \apply_filters('csp_content_origins', $content_origins);
+
+    if (! empty($content_origins)) {
+        $temp = array();
+        foreach ($content_origins as $k => $v) {
+            $temp[] = $k . ' ' . implode(' ', $v) . ';';
+        }
+
+        $content_origins = $temp;
+    }
+
+    if (\apply_filters('csp_upgrade_insecure_requests', true)) {
+        $content_origins[] = "upgrade-insecure-requests;";
+    }
+
     $content_origins = implode(' ', $content_origins);
 
     // Cache control
     $date_format   = 'D, d M Y H:i:s';
-    $expires = 24 * 60 * 60;// 24 hours
-    $headers['Expires']       = gmdate($date_format, time() + $expires);
-    $headers['Cache-Control'] = sprintf(
-        'max-age=%d, must-revalidate',
-        $expires
-    );
-
-    // Remove unwanted headers
-    header_remove("server");
-    header_remove("x-powered-by");
+    $expires_header_val = \apply_filters('expires_header_in_seconds', 24 * HOUR_IN_SECONDS);// 24 hours
+    $cache_expires_val = \apply_filters('cache_expires_in_seconds', 24 * HOUR_IN_SECONDS);// 24 hours
 
     // Add desired headers
-    $headers = [
-    "Content-Type"              => "text/html; charset=UTF-8",
-    "Strict-Transport-Security" => "max-age=31536000",
-    "X-Frame-Options"           => "DENY",
-    "X-XSS-Protection"          => 0,
-    "X-Content-Type-Options"    => "nosniff",
-    "Referrer-Policy"           => "strict-origin-when-cross-origin",
-    "Content-Security-Policy"   => $content_origins,
-    "Expires"                   => gmdate($date_format, time() + $expires),
-    "Cache-Control"             => sprintf("max-age=%d, must-revalidate", $expires),
-    ];
-    foreach ((array) $headers as $name => $field_value) {
-        header("{$name}: {$field_value}");
+    $headers = \apply_filters(
+        'response__headers_to_add',
+        array(
+            "Content-Type"              => "text/html; charset=UTF-8",
+            "Strict-Transport-Security" => "max-age=31536000",
+            "X-Frame-Options"           => "DENY",
+            "X-XSS-Protection"          => 0,
+            "X-Content-Type-Options"    => "nosniff",
+            "Referrer-Policy"           => "strict-origin-when-cross-origin",
+            "Content-Security-Policy"   => $content_origins,
+            "Expires"                   => gmdate($date_format, time() + $expires_header_val),
+            "Cache-Control"             => sprintf("max-age=%d, must-revalidate", $cache_expires_val),
+        )
+    );
+
+    if (! empty($headers)) {
+        foreach ((array) $headers as $name => $field_value) {
+            header("{$name}: {$field_value}");
+        }
+    }
+
+
+    // Remove unwanted headers
+    $headers_to_remove = \apply_filters(
+        'response__headers_to_remove',
+        array(
+            'x-powered-by',
+        )
+    );
+    if (! empty($headers_to_remove)) {
+        foreach ($headers_to_remove as $header) {
+            header_remove($header);
+        }
     }
 }
