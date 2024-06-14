@@ -31,6 +31,8 @@ define('DATE_FORMAT', 'd M Y');
 define('TIME_FORMAT', 'H:i:s');
 
 // go to https://www.recycleb.in/tools/keygen/ and copy the generated key from there.
+// This key is used to generate security tokens( nonce ), used in forms.
+// Nonce are helpful in preventing CSRF attacks
 define('PUBLIC_ENCRYPTION_SECRET', '');
 
 /**

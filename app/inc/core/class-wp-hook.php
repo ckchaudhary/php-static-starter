@@ -1,10 +1,14 @@
 <?php
 /**
+ * Blatantly copied from WordPress!
+ * With very few edits.
+ * 
  * Plugin API: WP_Hook class
  *
  * @package    WordPress
  * @subpackage Plugin
  * @since      4.7.0
+ *
  */
 
 

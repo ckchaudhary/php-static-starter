@@ -1,5 +1,9 @@
 <?php
 /**
+ * Blatantly copied from WordPress!
+ * With very few edits.
+ *
+ *
  * The plugin API is located in this file, which allows for creating actions
  * and filters and hooking functions, and methods. The functions or methods will
  * then be run when the action or filter is called.

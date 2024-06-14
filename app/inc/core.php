@@ -30,5 +30,5 @@ require_once ABSPATH . 'app/inc/core/authentication.php';
 // Http headers etc.
 require_once ABSPATH . 'app/inc/core/response.php';
 
-// Http headers etc.
+// Logging tool
 require_once ABSPATH . 'app/inc/core/class-debug-log.php';

@@ -6,6 +6,18 @@
  * @package PhpSSS
  * @author  @ckchaudhary
  * @since   1.0.0
+ *
+ * Usage:
+ * 1. \RecyleBin\PhpSSS\DebugLog\log( 'some text...' )
+ *      This will create a file general-debug.log inside the uploads folder you specified in config.php
+ *      if that file doesn't exist already.
+ *      It'll then write 'some text...' along with current date and time info, at the end of that file.
+ * 
+ * 2. \RecyleBin\PhpSSS\DebugLog\log( 'some text...', 'john' )
+ *      This will create a file john-debug.log inside the uploads folder you specified in config.php
+ *      if that file doesn't exist already.
+ *      It'll then write 'some text...' along with current date and time info, at the end of that file.
+ *
  */
 
 namespace RecyleBin\PhpSSS;

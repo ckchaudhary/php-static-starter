@@ -24,5 +24,5 @@ require_once ABSPATH . 'app/inc/core.php';
 // current request etc
 require_once ABSPATH . 'app/inc/templating.php';
 
-// custom functions, project specific
+// Project specific functions
 require_once ABSPATH . 'public/inc/functions.php';
