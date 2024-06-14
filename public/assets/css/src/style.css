@@ -1,0 +1,28 @@
+@config "./../../../../tailwind.config.js";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#progress {
+	background:linear-gradient(to right, #4dc0b5 var(--scroll), transparent 0);
+}
+
+#nav-content > ul {
+	@apply lg:flex justify-end flex-1 items-center;
+}
+
+#nav-content > ul > li {
+	@apply mr-3;
+}
+
+#nav-content > ul > li a{
+	@apply inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4;
+}
+#nav-content > ul > li.active > a{
+	@apply text-gray-900 font-bold hover:no-underline;
+}
+
+.page-title{
+	@apply font-bold font-sans break-normal text-gray-900 pt-6 pb-2 text-3xl md:text-4xl;
+}

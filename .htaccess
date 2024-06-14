@@ -1,0 +1,86 @@
+# ===========================================================================================
+# PREVENT SITE FROM BEING DISPLAYED IN SEARCH ENGINE RESULT PAGES (SERPs)
+#
+# ENABLED
+# ===========================================================================================
+# THE MOD_HEADERS APACHE MODULE MUST BE ENABLED FOR X-ROBOTS-TAG HTTP HEADERS TO FUNCTION
+#
+# THE X-ROBOTS-TAG HTTP HEADERS ARE DISCOVERED WHEN A URL IS CRAWLED
+# THEREFORE DO NOT DISALLOW CRAWLING VIA THE ROBOTS.TXT FILE
+#
+# @todo: Comment out the following line, when we are ready to be indexed.
+# Header set X-Robots-Tag "noindex, nofollow"
+
+# ===========================================================================================
+# CONTROL DEFAULT DIRECTORY INDEX FILE
+#
+# ENABLED
+# ===========================================================================================
+DirectoryIndex index.php index.html
+
+# ===========================================================================================
+# WEB SERVER SECURITY
+#
+# ENABLED
+# ===========================================================================================
+# DIRECTORY OPTIONS
+# ALL OPTIONS MUST BE IN A SINGLE LINE AND PRECEDED BY A + OR - SYMBOL IN ORDER TO BE MERGED
+#
+Options -Indexes +FollowSymLinks -MultiViews
+
+# ENABLE REWRITE ENGINE
+#
+RewriteEngine on
+# DISABLE SERVER VERSION DISPLAY ON ERROR PAGES
+#
+ServerSignature Off
+# DENY ACCESS TO ALL .htaccess FILES
+#
+<Files ~ "^.*\.([Hh][Tt][Aa])">
+Order allow,deny
+Deny from all
+Satisfy all
+</Files>
+# DENY ACCESS TO ALL CONFIG FILES
+#
+<FilesMatch "^(config|constants)\.php$">
+Order allow,deny
+Deny from all
+</FilesMatch>
+# BEGIN url rewriting
+#
+<IfModule mod_rewrite.c>
+
+# add trailing slash to url
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^(.+)$ $1/ [L,R=301]
+
+# Redirect http to https
+#
+# RewriteCond %{SERVER_PORT} 80
+# RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R,L]
+
+# Automatically redirect http(s)://development.com to https://www.development.com
+#
+# RewriteCond %{HTTP_HOST} !^www\. [NC]
+# RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L,NC]
+
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# All requests go to public/index.php
+#
+# If the url to access public site is is domain.com then the rewrite rule should be as follows:
+#       RewriteRule . index.php [L]
+#
+# If the url to access public site is domain.com/FOLDER1 then the rewrite rule should be as follows:
+#       RewriteRule . FOLDER1/index.php [L]
+#
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . php-static-starter/index.php [L]
+</IfModule>
+#
+# END url rewriting
